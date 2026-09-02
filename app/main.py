@@ -53,8 +53,12 @@ app.add_middleware(RequestContextMiddleware)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-# Dashboard
+# Dashboard & Health
 # ---------------------------------------------------------------------------
+
+@app.get("/api/health")
+def read_health():
+    return {"status": "ok"}
 
 @app.get("/api/dashboard/stats", response_model=schemas.DashboardStats)
 def read_dashboard_stats(

@@ -41,3 +41,7 @@ Thumbs.db
 
 # Alembic (keep alembic/ itself, just not migrations cache)
 alembic/__pycache__/
+
+# Testing
+.pytest_cache/
+.coverage

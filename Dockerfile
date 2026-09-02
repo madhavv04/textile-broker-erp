@@ -34,4 +34,4 @@ EXPOSE 8000
 
 # Production: gunicorn + uvicorn workers. Run `alembic upgrade head` before
 # starting the server to ensure database schema is up-to-date.
-CMD ["sh", "-c", "alembic upgrade head && gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000"]
+CMD ["sh", "-c", "alembic upgrade head && gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:${PORT:-8000}"]
