@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - ENV=prod
+      # Default: PostgreSQL via the `db` service below. Override in .env to
+      # point at SQLite instead for a lighter single-container setup.
+      - DATABASE_URL=postgresql://textile:textile@db:5432/textile_broker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    # Run migrations, then start the server
+    command: >
+      sh -c "alembic upgrade head && gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=textile
+      - POSTGRES_PASSWORD=textile
+      - POSTGRES_DB=textile_broker
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U textile"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+volumes:
+  pgdata:
